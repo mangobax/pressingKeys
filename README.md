@@ -1,16 +1,19 @@
 # pressingKeys
 
-An automated directional key press simulator that reads arrow-key instructions from your clipboard and replays them into the focused application with natural human-like timing. Supports an **inverted** mode (left ↔ right, up ↔ down) that can be toggled on or off before each run.
+A GUI-based directional key press simulator that reads arrow-key instructions from your clipboard and replays them into the focused application with natural human-like timing. Supports **inverted** mode (left ↔ right, up ↔ down) toggled with a single button.
+
+> **Looking for the CLI version?** It lives on the [`legacy`](https://github.com/mangobax/pressingKeys/tree/legacy) branch.
 
 ---
 
 ## Features
 
-- **Direction inversion toggle** — press `I` to switch between **INVERTED** (left ↔ right, up ↔ down) and **NORMAL** mode before each run. Defaults to inverted.
+- **Tkinter GUI** — no terminal required; always-on-top window with key list editor, log panel, and status bar.
+- **Direction inversion toggle** — click the mode button to switch between **INVERTED** and **NORMAL**. Defaults to inverted.
+- **Automatic clipboard detection** — copy a key list anywhere and it's loaded into the app automatically.
+- **Customisable global hotkeys** — assign any key as the Start or Abort hotkey via the UI. Hotkeys work even while the target app has focus.
 - **Human-like timing** — randomised delays between key presses to avoid ghosting.
-- **Abort support** — press `Q` at any time to stop mid-sequence.
-- **Always-on-top terminal** — the console stays visible while another app has focus (Windows).
-- **Clipboard-driven** — no file dialogs; just copy your key list and go.
+- **Abort support** — stop a run mid-sequence with the Abort button or hotkey.
 
 ---
 
@@ -19,6 +22,8 @@ An automated directional key press simulator that reads arrow-key instructions f
 ![pressingKeys demo](example.gif)
 
 ---
+
+## Getting Started
 
 ### Option A — Download the executable
 
@@ -40,7 +45,7 @@ Or [download the ZIP](https://github.com/mangobax/pressingKeys/archive/main.zip)
 - [keyboard](https://pypi.org/project/keyboard/)
 - [pyperclip](https://pypi.org/project/pyperclip/)
 
-> All other imports (`os`, `time`, `random`, `re`) are part of the Python standard library.
+> All other imports (`os`, `time`, `random`, `re`, `threading`, `tkinter`) are part of the Python standard library.
 
 ---
 
@@ -60,28 +65,29 @@ Or [download the ZIP](https://github.com/mangobax/pressingKeys/archive/main.zip)
 
 2. **Launch the program** — run `pressingKeys.exe` or `python pressingKeys.py`.
 
-3. **Choose mode** — the current mode (`INVERTED` or `NORMAL`) is shown on screen. Press `I` to toggle before copying your key list.
+3. **Load keys** — either:
+   - **Copy** a key list to the clipboard — the app detects it automatically and populates the key list box.
+   - Click **Paste from clipboard** to manually load the current clipboard.
+   - Type or edit keys directly in the text area.
 
-4. **Copy the key list** — select your text and press `Ctrl+C`. The program detects the clipboard update and parses the keys.
+4. **Choose mode** — click the mode button at the top to toggle between **INVERTED** (orange) and **NORMAL** (blue).
 
-5. **Focus the target app** — click on the application where the keys should be pressed.
+5. **Configure hotkeys (optional)** — in the *Hotkeys (global)* section, click **Assign** next to Start or Abort, then press any key to bind it. Defaults: `F6` (Start), `F7` (Abort).
 
-6. **Start** — press `Ctrl` to begin. The key presses will be sent automatically (inverted or not, depending on the active mode).
+6. **Focus the target app** — click on the application where the keys should be pressed.
 
-7. **Abort (optional)** — press `Q` at any time to stop early.
+7. **Start** — click the **Start** button or press your Start hotkey. The key presses will be sent automatically.
 
-8. **Restart or quit** — after a run, press `Shift` to go again or `Esc` to exit.
+8. **Abort (optional)** — click **Abort** or press your Abort hotkey to stop early.
 
-### Keyboard Shortcuts
+### Default Hotkeys
 
-| Action | Key |
-|--------|-----|
-| Toggle invert/normal mode | `I` |
-| Copy key list to clipboard | `Ctrl+C` |
-| Start pressing keys | `Ctrl` |
-| Abort current run | `Q` |
-| Restart | `Shift` |
-| Quit | `Esc` |
+| Action | Default Key |
+|--------|-------------|
+| Start  | `F6`        |
+| Abort  | `F7`        |
+
+> Hotkeys are global and work even when the target application has focus. Reassign them at any time via the **Assign** buttons.
 
 ### Performance
 
@@ -89,11 +95,17 @@ With default timing settings, **100 keys ≈ 10 ± 5 seconds**.
 
 ---
 
+## Legacy CLI Version
+
+The original terminal-based version (with `Ctrl` to start, `Shift` to restart, `Esc` to quit) is preserved on the [`legacy`](https://github.com/mangobax/pressingKeys/tree/legacy) branch.
+
+---
+
 ## Known Limitations
 
 - Reducing the random delay intervals may cause missed keystrokes.
 - Only arrow-key directions (`left`, `right`, `up`, `down`) are supported.
-- The always-on-top terminal feature is Windows-only.
+- The `keyboard` library requires elevated privileges on Linux.
 
 ---
 
