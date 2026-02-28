@@ -1,122 +1,145 @@
 """
-Title: pressingKeys
-Description: This is a program to press keys given some text.
-Author: Marco A. Barreto - marcoagbarreto
-Version: 13-Aug-2022
+pressingKeys - Automated directional key press simulator.
+
+Reads directional instructions (left, right, up, down) from clipboard text,
+inverts them, and simulates the corresponding key presses in the focused
+application with natural human-like delays.
+
+Author: MANGOBA
+Version: 28-Feb-2026
 """
 
 try:
-    from os import system as os_system, name as os_name
-    from time import sleep as time_sleep, time as time_time
-    from keyboard import press as keyboard_press, release as keyboard_release, \
-        is_pressed as keyboard_is_pressed, wait as keyboard_wait
-    from random import uniform as random_uniform
-    from re import sub as re_sub, findall as re_findall
-    from pyperclip import paste as pyperclip_paste
+    import os
+    import time
+    import random
+    import re
+    import keyboard
+    import pyperclip
 except ImportError as details:
     print("-E- Couldn't import module, try pip install 'module'")
     raise details
 
+INVERT_MAP: dict[str, str] = {
+    'left': 'right',
+    'right': 'left',
+    'up': 'down',
+    'down': 'up',
+}
 
-def key_press(key):
+
+def key_press(key: str) -> None:
+    """Simulate a natural key press with random delays."""
     # sleeps to avoid key ghosting from previous key press
-    time_sleep(random_uniform(0.07, 0.09))
-    keyboard_press(key)
+    time.sleep(random.uniform(0.07, 0.09))
+    keyboard.press(key)
     # sleeps between 0.05 and 0.07 seconds to simulate natural pressing
-    time_sleep(random_uniform(0.05, 0.07))
-    keyboard_release(key)
+    time.sleep(random.uniform(0.05, 0.07))
+    keyboard.release(key)
 
 
 class PressingKeys:
-    def __init__(self, file):
+    def __init__(self, text: str, invert: bool = True) -> None:
+        self.key_list: list[str] = self._parse_keys(text, invert)
 
-        self.keyList = file
-        self.parse_text()
+    @staticmethod
+    def _parse_keys(text: str, invert: bool) -> list[str]:
+        """Parse directional keys from text, optionally inverting them."""
+        text = text.replace('\n', '').replace('.', '')
+        text = re.sub(r'[0-9]', '', text)
+        keys = re.findall(r'left|right|up|down', text, re.IGNORECASE)
+        if invert:
+            return [INVERT_MAP.get(k.lower(), k.lower()) for k in keys]
+        return [k.lower() for k in keys]
 
-    def parse_text(self):
-        self.keyList = self.keyList.replace('\n', '')
-        self.keyList = self.keyList.replace('.', '')
-        self.keyList = re_sub(r'[0-9]', '', self.keyList)
-        self.keyList = re_findall('left|right|up|down|', self.keyList)
-        return self.key_maps()
-
-    def key_maps(self):
-        # Map keys to match inverted logic
-        for index, key in enumerate(self.keyList):
-            if key == 'left':
-                self.keyList[index] = 'right'
-
-            elif key == 'right':
-                self.keyList[index] = 'left'
-
-            elif key == 'up':
-                self.keyList[index] = 'down'
-
-            elif key == 'down':
-                self.keyList[index] = 'up'
-
-        # Remove empty items in the list
-        for index, key in enumerate(self.keyList):
-            if key == '':
-                del self.keyList[index]
-
-    def run(self):
+    def run(self) -> None:
+        """Wait for start key, then press all keys in sequence."""
         print('Ensure to have focus on the app.')
-        # Show the amount of keys to press
-        print('Keys to press: ', len(self.keyList))
+        print(f'Keys to press: {len(self.key_list)}')
 
         start_key = 'Ctrl'
         abort_key = 'Q'
-        print("Press ", [start_key], " to start.")
-        keyboard_wait(start_key)
-        print("Started, press", [abort_key], "to abort.")
+        print(f'Press [{start_key}] to start.')
+        keyboard.wait(start_key)
+        print(f'Started, press [{abort_key}] to abort.')
 
-        t0 = time_time()
-        # Starts pressing keys
-        for key in self.keyList:
-            if key:
-                key_press(key)
-            if keyboard_is_pressed(abort_key):
+        t0 = time.time()
+        for key in self.key_list:
+            key_press(key)
+            if keyboard.is_pressed(abort_key):
                 print('Aborted')
                 break
 
-        t1 = time_time()
+        t1 = time.time()
         print('Finished')
-        print('Time delayed:', int(t1 - t0), 's')
+        print(f'Time elapsed: {int(t1 - t0)}s')
 
 
-def main():
+def clear_terminal() -> None:
+    """Clear the terminal screen."""
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+
+def setup_windows_terminal() -> None:
+    """Resize terminal and set it to always-on-top (Windows only)."""
+    if os.name != 'nt':
+        return
+
+    os.system('mode con cols=37 lines=12')
+    os.system(
+        'Powershell.exe -ExecutionPolicy UnRestricted -Command "(Add-Type -memberDefinition'
+        ' \\"[DllImport(\\"\\"user32.dll\\"\\")] public static extern bool SetWindowPos'
+        '(IntPtr hWnd, IntPtr hWndInsertAfter, int x,int y,int cx, int xy, uint flagsw);\\"'
+        ' -name \\"Win32SetWindowPos\\" -passThru )::SetWindowPos((Add-Type -memberDefinition'
+        ' \\"[DllImport(\\"\\"Kernel32.dll\\"\\")] public static extern IntPtr'
+        ' GetConsoleWindow();\\" -name \\"Win32GetConsoleWindow\\" -passThru'
+        ' )::GetConsoleWindow(),-1,0,0,0,0,67)"'
+    )
+
+
+def main() -> None:
     copy_key = 'Ctrl+C'
     restart_key = 'Shift'
+    quit_key = 'Esc'
+    toggle_key = 'I'
+    invert = True
 
-    # Set terminal size to optimal size
-    os_system('mode con cols=37 lines=12')
-
-    # Set terminal to be always on top
-    os_system('Powershell.exe -ExecutionPolicy UnRestricted -Command "(Add-Type -memberDefinition \\"[DllImport('
-              '\\"\\"user32.dll\\"\\")] public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, '
-              'int x,int y,int cx, int xy, uint flagsw);\\" -name \\"Win32SetWindowPos\\" -passThru )::SetWindowPos(('
-              'Add-Type -memberDefinition \\"[DllImport(\\"\\"Kernel32.dll\\"\\")] public static extern IntPtr '
-              'GetConsoleWindow();\\" -name \\"Win32GetConsoleWindow\\" -passThru )::GetConsoleWindow(),-1,0,0,0,0,'
-              '67)"')
-
-    # Clear the terminal after last command
-    os_system('cls' if os_name == 'nt' else 'clear')
+    setup_windows_terminal()
+    clear_terminal()
 
     while True:
-        # Copy the key list
-        print('Waiting for items in the clipboard,\nuse',
-              [copy_key], 'to copy the key list.')
-        keyboard_wait(copy_key)
-        time_sleep(0.1)  # Sleep 0.1 s so clipboard can refresh
+        mode = 'INVERTED' if invert else 'NORMAL'
+        print(f'Mode: {mode}  (press [{toggle_key}] to toggle)')
+        print(f'Waiting for items in the clipboard,\nuse [{copy_key}] to copy the key list.')
+        print(f'Press [{quit_key}] to quit.')
 
-        # Run the program
-        PressingKeys(pyperclip_paste()).run()
+        # Wait for either clipboard copy or toggle key
+        while True:
+            if keyboard.is_pressed(toggle_key):
+                invert = not invert
+                mode = 'INVERTED' if invert else 'NORMAL'
+                print(f'Mode switched to: {mode}')
+                time.sleep(0.3)  # debounce
+            if keyboard.is_pressed(copy_key):
+                break
+            if keyboard.is_pressed(quit_key):
+                print('Goodbye!')
+                return
+            time.sleep(0.05)
 
-        # Restart the program
-        print('Press', [restart_key], 'to start again.')
-        keyboard_wait(restart_key)
-        os_system('cls' if os_name == 'nt' else 'clear')
+        time.sleep(0.1)  # Sleep 0.1 s so clipboard can refresh
+
+        PressingKeys(pyperclip.paste(), invert=invert).run()
+
+        print(f'Press [{restart_key}] to start again, or [{quit_key}] to quit.')
+        while True:
+            if keyboard.is_pressed(restart_key):
+                break
+            if keyboard.is_pressed(quit_key):
+                print('Goodbye!')
+                return
+            time.sleep(0.05)
+        clear_terminal()
 
 
 if __name__ == '__main__':
