@@ -14,7 +14,11 @@ An automated directional key press simulator that reads arrow-key instructions f
 
 ---
 
-## Getting Started
+## Demo
+
+![pressingKeys demo](example.gif)
+
+---
 
 ### Option A — Download the executable
 
