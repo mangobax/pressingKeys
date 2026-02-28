@@ -1,4 +1,6 @@
-# pressingKeys
+# pressingKeys (Legacy — CLI)
+
+> **This is the legacy CLI version.** A newer GUI version with customisable hotkeys, automatic clipboard detection, and a tkinter interface is available on the [`main`](https://github.com/mangobax/pressingKeys/tree/main) branch.
 
 An automated directional key press simulator that reads arrow-key instructions from your clipboard and replays them into the focused application with natural human-like timing. Supports an **inverted** mode (left ↔ right, up ↔ down) that can be toggled on or off before each run.
 
