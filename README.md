@@ -22,18 +22,18 @@ An automated directional key press simulator that reads arrow-key instructions f
 
 ### Option A — Download the executable
 
-Download the latest [pressingKeys.exe](https://github.com/marcoagbarreto/pressingKeys/releases/download/v0.2.4/pressingKeys.exe) release.
+Download the latest [pressingKeys.exe](https://github.com/mangobax/pressingKeys/releases/latest) release.
 
 ### Option B — Run from source
 
 ```bash
-git clone https://github.com/marcoagbarreto/pressingKeys.git
+git clone https://github.com/mangobax/pressingKeys.git
 cd pressingKeys
 pip install -r requirements.txt
 python pressingKeys.py
 ```
 
-Or [download the ZIP](https://github.com/marcoagbarreto/pressingKeys/archive/main.zip) and extract it.
+Or [download the ZIP](https://github.com/mangobax/pressingKeys/archive/main.zip) and extract it.
 
 ### Dependencies
 
