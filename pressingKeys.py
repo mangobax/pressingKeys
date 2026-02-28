@@ -14,6 +14,7 @@ from __future__ import annotations
 import os
 import re
 import random
+import sys
 import threading
 import time
 import tkinter as tk
@@ -94,7 +95,8 @@ class PressingKeysApp:
         self.root.attributes("-topmost", True)
 
         # Try to use the ico file if available
-        icon_path = os.path.join(os.path.dirname(__file__), "icon.ico")
+        base_path = getattr(sys, '_MEIPASS', os.path.dirname(__file__))
+        icon_path = os.path.join(base_path, "icon.ico")
         if os.path.exists(icon_path):
             self.root.iconbitmap(icon_path)
 
